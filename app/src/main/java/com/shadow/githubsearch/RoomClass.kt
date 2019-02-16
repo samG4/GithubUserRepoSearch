@@ -11,19 +11,21 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.Update
 import android.content.Context
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
 @Entity
+@Parcelize
 data class SearchResult(
     @PrimaryKey
     var userName: String,
-    var name: String
-    ,
+    var name: String,
     var language: String?,
     @SerializedName("stargazers_count")
     var stars: String,
     var forks: String
-)
+): Parcelable
 
 @Dao
 interface SearchDao {

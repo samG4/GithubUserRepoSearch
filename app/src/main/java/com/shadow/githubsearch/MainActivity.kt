@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -15,14 +16,25 @@ class MainActivity : AppCompatActivity(), SearchHandler {
     private lateinit var searchViewModel: SearchViewModel
     private var searchResultList = ArrayList<SearchResult>()
     private lateinit var searchAdapter: SearchAdapter
-
+    val INSTANCE = "instance"
     private var query: String? = null
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable(INSTANCE, searchResultList)
+        super.onSaveInstanceState(outState)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        savedInstanceState?.let {
+            try{
+                searchResultList = savedInstanceState.getSerializable(INSTANCE) as ArrayList<SearchResult>
+            }catch (e: Exception){
+                Log.e("***",e.message)
+            }
+        }
         searchViewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
-
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
                 query = p0

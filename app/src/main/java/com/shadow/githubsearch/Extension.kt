@@ -5,32 +5,32 @@ import android.os.Build
 import android.support.v7.app.AlertDialog
 
 
-fun mapSrchResp(userName: String, searchResult: List<SearchResult>):SearchResult{
+fun mapSrchResp(userName: String, gitRepository: List<GitRepository>):GitRepository{
     val star = StringBuilder()
     val fork = StringBuilder()
     val lang = StringBuilder()
     val name = StringBuilder()
-    searchResult.forEach { res->
+    gitRepository.forEach { res->
         star.append(res.stars,",")
         fork.append(res.forks,",")
         lang.append(res.language,",")
         name.append(res.name,",")
     }
-    return SearchResult(userName,name.toString(),lang.toString(),star.toString(), fork.toString())
+    return GitRepository(userName,name.toString(),lang.toString(),star.toString(), fork.toString())
 }
 
-fun convertSrchResultToList(searchResult: SearchResult): ArrayList<SearchResult>{
-    val starList :List<String> = searchResult.stars.split(",")
-    val forkList :List<String> = searchResult.forks.split(",")
-    val langList :List<String>? = searchResult.language?.split(",")
-    val nameList :List<String> = searchResult.name.split(",")
-    val userName = searchResult.userName
-    val searchList = ArrayList<SearchResult>()
+fun convertSrchResultToList(gitRepository: GitRepository): ArrayList<GitRepository>{
+    val starList :List<String> = gitRepository.stars.split(",")
+    val forkList :List<String> = gitRepository.forks.split(",")
+    val langList :List<String>? = gitRepository.language?.split(",")
+    val nameList :List<String> = gitRepository.name.split(",")
+    val userName = gitRepository.userName
+    val searchList = ArrayList<GitRepository>()
     nameList.forEachIndexed {index,data->
         val lang = langList?.let {lang->
             if(lang?.size>index)lang[index] else ""
         }?:""
-        searchList.add(SearchResult(userName, data, lang, starList[index], forkList[index]))
+        searchList.add(GitRepository(userName, data, lang, starList[index], forkList[index]))
     }
     searchList.removeAt(searchList.lastIndex)
     return searchList

@@ -12,12 +12,12 @@ class GitSearchRepo(application: Application) {
 
     fun getSearchedResult(name: String) = searchDao.getSearchResult(name)
 
-    fun insert(searchResult: SearchResult) {
-        InsertData(searchDao).execute(searchResult)
+    fun insert(gitRepository: GitRepository) {
+        InsertData(searchDao).execute(gitRepository)
     }
 
-    fun update(searchResult: SearchResult) {
-        UpdateData(searchDao).execute(searchResult)
+    fun update(gitRepository: GitRepository) {
+        UpdateData(searchDao).execute(gitRepository)
     }
 
     fun deleteAll(){
@@ -25,8 +25,8 @@ class GitSearchRepo(application: Application) {
     }
 
     companion object {
-        private class InsertData(val searchDao: SearchDao) : AsyncTask<SearchResult, Void, Void>() {
-            override fun doInBackground(vararg params: SearchResult?): Void? {
+        private class InsertData(val searchDao: SearchDao) : AsyncTask<GitRepository, Void, Void>() {
+            override fun doInBackground(vararg params: GitRepository?): Void? {
                 params[0]?.let {
                     searchDao.insert(it)
                 }
@@ -34,8 +34,8 @@ class GitSearchRepo(application: Application) {
             }
         }
 
-        private class UpdateData(val searchDao: SearchDao) : AsyncTask<SearchResult, Void, Void>() {
-            override fun doInBackground(vararg params: SearchResult?): Void? {
+        private class UpdateData(val searchDao: SearchDao) : AsyncTask<GitRepository, Void, Void>() {
+            override fun doInBackground(vararg params: GitRepository?): Void? {
                 params[0]?.let {
                     searchDao.update(it)
                 }

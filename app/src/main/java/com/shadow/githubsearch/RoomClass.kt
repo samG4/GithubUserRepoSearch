@@ -17,32 +17,40 @@ import kotlinx.android.parcel.Parcelize
 
 @Entity
 @Parcelize
-data class SearchResult(
+data class GitRepository(
     @PrimaryKey
     var userName: String,
-    var name: String,
-    var language: String?,
+    @SerializedName("avatar_url")
+    var avatarUrl: String ?= null,
+    var name: String ?= null,
+    @SerializedName("full_name")
+    var fullName: String ?=null,
+    @SerializedName("watchers_count")
+    var watchersCount : Int ?=0,
+    @SerializedName("")
+    var language: String ?= null,
     @SerializedName("stargazers_count")
-    var stars: String,
-    var forks: String
+    var stars: String ?= null,
+    var forks: String ?= null,
+
 ): Parcelable
 
 @Dao
 interface SearchDao {
     @Insert
-    fun insert(searchResult: SearchResult)
+    fun insert(gitRepository: GitRepository)
 
     @Update
-    fun update(searchResult: SearchResult)
+    fun update(gitRepository: GitRepository)
 
-    @Query("DELETE FROM SearchResult")
+    @Query("DELETE FROM GitRepository")
     fun deleteAll()
 
-    @Query("SELECT * FROM SearchResult where userName = :name ")
-    fun getSearchResult(name: String): LiveData<SearchResult>
+    @Query("SELECT * FROM GitRepository where userName = :name ")
+    fun getSearchResult(name: String): LiveData<GitRepository>
 }
 
-@Database(entities = [SearchResult::class], version = 1)
+@Database(entities = [GitRepository::class], version = 1)
 abstract class GitSearchDatabase : RoomDatabase(){
     abstract fun searchDao(): SearchDao
 

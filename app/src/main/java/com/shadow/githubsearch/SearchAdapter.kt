@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.search_result_item.view.*
 
 class SearchAdapter(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    lateinit var searchResultList: ArrayList<SearchResult>
+    lateinit var gitRepositoryList: ArrayList<GitRepository>
 
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): RecyclerView.ViewHolder {
@@ -20,11 +20,11 @@ class SearchAdapter(private val context: Context) :
     }
 
     override fun getItemCount(): Int {
-        return searchResultList.size
+        return gitRepositoryList.size
     }
 
     override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
-        (p0 as SearchViewHolder).bind(searchResultList[p1])
+        (p0 as SearchViewHolder).bind(gitRepositoryList[p1])
     }
 
     inner class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -33,11 +33,11 @@ class SearchAdapter(private val context: Context) :
         private val tvStar = itemView.tvStar
         private val tvFork = itemView.tvFork
         private val imgLang = itemView.imgLang
-        fun bind(searchResult: SearchResult) {
-            tvName.text = searchResult.name
-            tvLang.text = searchResult.language
-            tvStar.text = searchResult.stars
-            tvFork.text = searchResult.forks
+        fun bind(gitRepository: GitRepository) {
+            tvName.text = gitRepository.name
+            tvLang.text = gitRepository.language
+            tvStar.text = gitRepository.stars
+            tvFork.text = gitRepository.forks
             imgLang.setColorFilter(
                 when (tvLang.text) {
                     "Kotlin" -> Color.rgb(241, 142, 51)

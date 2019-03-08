@@ -8,17 +8,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val repository: GitSearchRepo by lazy {
         GitSearchRepo(application)
     }
-    fun getSearchResults(name: String?=""): LiveData<SearchResult>?{
+    fun getSearchResults(name: String?=""): LiveData<GitRepository>?{
         return name?.let {
             repository.getSearchedResult(name)
         }
     }
 
-    fun insert(result: SearchResult) {
+    fun insert(result: GitRepository) {
         repository.insert(result)
     }
 
-    fun update(result: SearchResult) {
+    fun update(result: GitRepository) {
         repository.update(result)
     }
 

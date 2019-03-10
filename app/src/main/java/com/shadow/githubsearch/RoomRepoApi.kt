@@ -2,6 +2,7 @@ package com.shadow.githubsearch
 
 import android.app.Application
 import android.os.AsyncTask
+import android.util.Log
 
 class GitSearchRepo(application: Application) {
 
@@ -10,9 +11,9 @@ class GitSearchRepo(application: Application) {
         gitSearchDatabase.searchDao()
     }
 
-    fun getSearchedResult(name: String) = searchDao.getSearchResult(name)
+    fun getSearchedResult(query: String) = searchDao.getRepos(query)
 
-    fun insert(gitRepository: GitRepository) {
+    fun insert(gitRepository: List<GitRepository>) {
         InsertData(searchDao).execute(gitRepository)
     }
 
@@ -20,15 +21,16 @@ class GitSearchRepo(application: Application) {
         UpdateData(searchDao).execute(gitRepository)
     }
 
-    fun deleteAll(){
+    fun deleteAll() {
         DeleteData(searchDao).execute()
     }
 
     companion object {
-        private class InsertData(val searchDao: SearchDao) : AsyncTask<GitRepository, Void, Void>() {
-            override fun doInBackground(vararg params: GitRepository?): Void? {
+        private class InsertData(val searchDao: SearchDao) : AsyncTask<List<GitRepository>, Void, Void>() {
+            override fun doInBackground(vararg params: List<GitRepository>?): Void? {
                 params[0]?.let {
-                    searchDao.insert(it)
+                        Log.d("Async","${it.size}")
+                        searchDao.insert(it)
                 }
                 return null
             }

@@ -2,28 +2,35 @@ package com.shadow.githubsearch
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.util.Log
+import com.amitshekhar.DebugDB
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity(), SearchHandler {
+class MainActivity : AppCompatActivity(), RepositoryHandler, SearchHandler {
+    override fun handleContributors(contributorList: List<Owner>) {
 
-    private val searchViewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(this).get(SearchViewModel::class.java)
     }
+
+
+    private lateinit var searchViewModel: SearchViewModel
 
     private var searchResultList = ArrayList<GitRepository>()
     private var query: String? = null
     private lateinit var searchAdapter: SearchAdapter
+    private val searchWorker : SearchWorker by lazy {
+        SearchWorker(this@MainActivity)
+    }
 
     companion object {
-        val INSTANCE = "instance"
-
+        const val INSTANCE = "instance"
+        const val TAG = "MainActivity"
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -34,29 +41,28 @@ class MainActivity : AppCompatActivity(), SearchHandler {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d(TAG,DebugDB.getAddressLog())
         savedInstanceState?.let {
             try {
                 searchResultList = savedInstanceState.getSerializable(INSTANCE) as ArrayList<GitRepository>
             } catch (e: Exception) {
-                Log.e("***", e.message)
+                Log.e(TAG, e.message)
             }
         }
+        searchViewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
                 query = p0
                 query?.let {
                     searchViewModel.getSearchResults(query)
-                        ?.observe(this@MainActivity, Observer<GitRepository> { searchResult ->
-                            if (searchResult == null) {
-                                SearchWorker(it, this@MainActivity).doRepoSearch()
+                        ?.observe(this@MainActivity, Observer<List<GitRepository>> { repoList ->
+                            if (repoList.isNullOrEmpty()) {
+                                searchWorker.searchRepository(it)
                             } else {
-                                searchResultList = convertSrchResultToList(searchResult)
+                                searchResultList = repoList as ArrayList<GitRepository>
                                 if (searchResultList.size > 0) {
                                     searchAdapter.gitRepositoryList = searchResultList
                                     searchAdapter.notifyDataSetChanged()
-                                } else {
-                                    showAlert("0 repositories")
-                                    clearAdapter()
                                 }
                             }
                         })
@@ -74,20 +80,28 @@ class MainActivity : AppCompatActivity(), SearchHandler {
 
         val layoutManager: RecyclerView.LayoutManager =
             LinearLayoutManager(this)
-        searchAdapter = SearchAdapter(this)
+        searchAdapter = SearchAdapter(this, this)
         searchAdapter.gitRepositoryList = searchResultList
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = searchAdapter
 
     }
 
-    override fun handleResponse(gitRepository: List<GitRepository>) {
+    private fun clearAdapter() {
+        searchAdapter.gitRepositoryList.clear()
+        searchAdapter.notifyDataSetChanged()
+    }
+
+    override fun handleSearch(gitItem: GitItem) {
         searchResultList.clear()
-        searchResultList = ArrayList(gitRepository)
+        searchResultList = ArrayList(gitItem.items?.take(10))
+        Log.d(TAG, "${searchResultList.size}")
         if (searchResultList.size > 0) {
-            query?.let {
-                searchViewModel.insert(mapSrchResp(it, gitRepository))
+            searchWorker.compositeDisposable.dispose()
+            searchResultList.map {
+                it.avatarUrl = it.owner?.avatarUrl
             }
+            searchViewModel.insert(searchResultList)
         } else {
             showAlert("0 repositories")
             clearAdapter()
@@ -99,8 +113,12 @@ class MainActivity : AppCompatActivity(), SearchHandler {
         clearAdapter()
     }
 
-    private fun clearAdapter() {
-        searchAdapter.gitRepositoryList.clear()
-        searchAdapter.notifyDataSetChanged()
+    override fun handleRepository(gitRepoList: List<GitRepository>) {
+    }
+
+    override fun onRepositorySelected(repository: GitRepository) {
+        val intent = Intent(this, DetailsActivity::class.java)
+        intent.putExtra("Git", repository)
+        startActivity(intent)
     }
 }

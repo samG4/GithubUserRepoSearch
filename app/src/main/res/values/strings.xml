@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">GitHubSearch</string>
     <string name="contributors">Contributors</string>
+    <string name="languages">Languages</string>
+    <string name="apply">Apply</string>
+    <string name="reset">Reset</string>
 </resources>

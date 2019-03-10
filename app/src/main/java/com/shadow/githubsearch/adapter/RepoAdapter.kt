@@ -1,4 +1,4 @@
-package com.shadow.githubsearch
+package com.shadow.githubsearch.adapter
 
 import android.content.Context
 import android.graphics.Color
@@ -6,6 +6,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.shadow.githubsearch.GitRepository
+import com.shadow.githubsearch.R
+import com.shadow.githubsearch.RepositoryHandler
 import kotlinx.android.synthetic.main.search_result_item.view.*
 
 class RepoAdapter(

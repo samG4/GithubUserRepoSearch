@@ -23,6 +23,10 @@ interface SearchDao {
 
     @Query("SELECT * FROM GitRepository where name like '%' || :query || '%' order by watchersCount desc")
     fun getRepos(query: String): LiveData<List<GitRepository>>
+
+    @Query("SELECT distinct language from GitRepository")
+    fun getLanguages(): LiveData<List<String>>
+
 }
 
 @Database(entities = [GitRepository::class], version = 1)

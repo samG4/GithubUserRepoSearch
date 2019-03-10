@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.webkit.WebViewClient
 import android.widget.TextView
+import com.shadow.githubsearch.adapter.ContributorsGridAdapter
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_detail.*
 import kotlinx.android.synthetic.main.web_screen.*
@@ -17,7 +18,7 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
     }
 
     private val gitRepositoryItem: GitRepository? by lazy {
-        intent.getParcelableExtra("Git") as GitRepository
+        intent.getParcelableExtra(GIT_REPO) as GitRepository
     }
     private val searchHandler: SearchWorker by lazy {
         SearchWorker(this@DetailsActivity)
@@ -64,16 +65,16 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
         Log.e(TAG, error.message)
     }
 
-    override fun handleContributors(contributorList: List<Owner>) {
+    override fun handleContributors(contributorList: List<Contributor>) {
         Log.d(TAG, "$contributorList")
-        customAdapter.contributorsList = contributorList as ArrayList<Owner>
+        customAdapter.contributorsList = contributorList as ArrayList<Contributor>
         customAdapter.notifyDataSetChanged()
     }
 
-    override fun onContributorTapped(owner: Owner) {
-        Log.d(TAG, "$owner")
+    override fun onContributorTapped(contributor: Contributor) {
+        Log.d(TAG, "$contributor")
         val intent = Intent(this, ContributorDetails::class.java)
-        intent.putExtra("contributor", owner)
+        intent.putExtra(CONTRIBUTOR, contributor)
         startActivity(intent)
     }
 }

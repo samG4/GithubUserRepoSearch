@@ -15,6 +15,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun getLanguages(): LiveData<List<String>>?{
+        return repository.getLanguages()
+    }
+
     fun insert(result: List<GitRepository>) {
         repository.insert(result)
     }

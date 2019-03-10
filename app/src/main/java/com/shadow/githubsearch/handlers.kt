@@ -2,7 +2,7 @@ package com.shadow.githubsearch
 
 interface SearchHandler {
     fun handleRepository(gitRepoList : List<GitRepository>)
-    fun handleContributors(contributorList : List<Owner>)
+    fun handleContributors(contributorList : List<Contributor>)
     fun handleSearch(gitRepository: GitItem)
     fun errorResponse(error: Throwable)
 }
@@ -12,5 +12,9 @@ interface RepositoryHandler{
 }
 
 interface ContributorHandler{
-    fun onContributorTapped(owner:Owner)
+    fun onContributorTapped(contributor:Contributor)
+}
+
+interface FilterHandler{
+    fun filterLanguages(language: ArrayList<String>)
 }

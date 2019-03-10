@@ -12,6 +12,7 @@ class GitSearchRepo(application: Application) {
     }
 
     fun getSearchedResult(query: String) = searchDao.getRepos(query)
+    fun getLanguages() = searchDao.getLanguages()
 
     fun insert(gitRepository: List<GitRepository>) {
         InsertData(searchDao).execute(gitRepository)

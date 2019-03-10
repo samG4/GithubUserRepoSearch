@@ -4,4 +4,5 @@
     <string name="languages">Languages</string>
     <string name="apply">Apply</string>
     <string name="reset">Reset</string>
+    <string name="stars_count">Stars Count</string>
 </resources>

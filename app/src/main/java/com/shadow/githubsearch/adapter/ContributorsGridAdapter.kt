@@ -1,4 +1,4 @@
-package com.shadow.githubsearch
+package com.shadow.githubsearch.adapter
 
 import android.app.Activity
 import android.content.Context
@@ -7,12 +7,16 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.shadow.githubsearch.CircleTransform
+import com.shadow.githubsearch.Contributor
+import com.shadow.githubsearch.ContributorHandler
+import com.shadow.githubsearch.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.contributor_item.view.*
 
 class ContributorsGridAdapter(
     private val context: Context, private val contributorHandler: ContributorHandler,
-    var contributorsList: ArrayList<Owner>? = null
+    var contributorsList: ArrayList<Contributor>? = null
 ) : BaseAdapter() {
     private val circularTransform = CircleTransform()
     override fun getView(p0: Int, p1: View?, parent: ViewGroup?): View {
@@ -47,12 +51,12 @@ class ContributorsGridAdapter(
         private val mTextView: TextView = itemView.tvUserName
         private val view = itemView
 
-        fun bindView(owner: Owner) {
-            Picasso.get().load(owner.avatarUrl).transform(circularTransform).into(mImageView)
-            mTextView.text = owner.name
+        fun bindView(contributor: Contributor) {
+            Picasso.get().load(contributor.avatarUrl).transform(circularTransform).into(mImageView)
+            mTextView.text = contributor.name
 
             view.setOnClickListener {
-                contributorHandler.onContributorTapped(owner)
+                contributorHandler.onContributorTapped(contributor)
             }
         }
     }

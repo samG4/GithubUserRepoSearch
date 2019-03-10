@@ -14,7 +14,8 @@ data class GitRepository(
     var repoId: Int = 0,
     var avatarUrl: String ?= null,
     @Ignore
-    var owner : Owner?=null,
+    @SerializedName("owner")
+    var contributor : Contributor?=null,
     var name: String ?= null,
     @SerializedName("full_name")
     var fullName: String ?=null,
@@ -36,9 +37,17 @@ data class GitItem(
 )
 
 @Parcelize
-data class Owner(
+data class Contributor(
     @SerializedName("login")
     var name: String ?= null,
     @SerializedName("avatar_url")
     var avatarUrl: String ?= null
 ): Parcelable
+
+data class Filter(
+    var languageList : ArrayList<String>?=null,
+    var minStarCount :Int = 0,
+    var maxStarCount : Int = 0
+)
+
+

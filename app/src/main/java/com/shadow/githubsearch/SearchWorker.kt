@@ -72,7 +72,7 @@ interface GitSearchApi {
     fun searchRepositories(@Query("q") query: String): Observable<GitItem>
 /*
     @GET("repos/{fullName}/contributors")
-    fun getContributors(@Path("fullName") fullName: String): Observable<List<Owner>>*/
+    fun getContributors(@Path("fullName") fullName: String): Observable<List<Contributor>>*/
     @GET
-    fun getContributors(@Url contributors: String): Observable<List<Owner>>
+    fun getContributors(@Url contributors: String): Observable<List<Contributor>>
 }

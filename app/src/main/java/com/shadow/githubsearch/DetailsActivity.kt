@@ -4,10 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.webkit.WebViewClient
 import android.widget.TextView
 import com.shadow.githubsearch.adapter.ContributorsGridAdapter
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_detail.*
 import kotlinx.android.synthetic.main.web_screen.*
 
@@ -15,11 +15,13 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
 
     companion object {
         const val TAG = "DetailScreen"
+        const val INSTANCE = "Item"
     }
 
-    private val gitRepositoryItem: GitRepository? by lazy {
+    private val gitRepositoryItem: GitRepository by lazy {
         intent.getParcelableExtra(GIT_REPO) as GitRepository
     }
+
     private val searchHandler: SearchWorker by lazy {
         SearchWorker(this@DetailsActivity)
     }
@@ -27,9 +29,22 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
         ContributorsGridAdapter(this@DetailsActivity, this)
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable(INSTANCE, customAdapter.contributorsList)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.item_detail)
+        var temp = ArrayList<Contributor>()
+        savedInstanceState?.let {
+            try {
+                temp = savedInstanceState.getSerializable(INSTANCE) as ArrayList<Contributor>
+            } catch (e: Exception) {
+                Log.e(TAG, e.message)
+            }
+        }
         Log.d(TAG, "$gitRepositoryItem")
         imgBack.setOnClickListener {
             finish()
@@ -39,7 +54,14 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
             tvName.text = it.name
             tvProjectLine.text = it.url
             tvDescription.text = it.description
-            it.contributorsUrl?.let { contributors -> searchHandler.getContributors(contributors) }
+            if(temp.isNullOrEmpty())
+                it.contributorsUrl?.let { contributors -> searchHandler.getContributors(contributors) }
+            else{
+                customAdapter.contributorsList = temp
+                customAdapter.notifyDataSetChanged()
+                temp.clear()
+            }
+
         }
         tvProjectLine.setOnClickListener {
             val link = (it as TextView).text.toString()
@@ -67,6 +89,8 @@ class DetailsActivity : AppCompatActivity(), SearchHandler, ContributorHandler {
 
     override fun handleContributors(contributorList: List<Contributor>) {
         Log.d(TAG, "$contributorList")
+        if(contributorList.isNotEmpty())
+           tvContributors.visibility = View.VISIBLE
         customAdapter.contributorsList = contributorList as ArrayList<Contributor>
         customAdapter.notifyDataSetChanged()
     }

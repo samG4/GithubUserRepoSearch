@@ -14,7 +14,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.GridView
-import com.amitshekhar.DebugDB
 import com.shadow.githubsearch.adapter.GvLangAdapter
 import com.shadow.githubsearch.adapter.SearchAdapter
 import kotlinx.android.synthetic.main.activity_main.*
@@ -51,11 +50,17 @@ class MainActivity : AppCompatActivity(), RepositoryHandler, SearchHandler, View
 
     companion object {
         const val INSTANCE = "instance"
+        const val FIL_LANG= "filtered"
+        const val MIN_VALUE = "min"
+        const val MAX_VALUE = "max"
         const val TAG = "MainActivity"
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putSerializable(INSTANCE, repoSearchList)
+        outState?.putSerializable(INSTANCE, searchAdapter.gitRepositoryList)
+        outState?.putSerializable(FIL_LANG, filLanguages)
+        outState?.putString(MIN_VALUE, etMinStar.text.toString())
+        outState?.putString(MAX_VALUE, etMaxStar.text.toString())
         super.onSaveInstanceState(outState)
     }
 
@@ -65,7 +70,11 @@ class MainActivity : AppCompatActivity(), RepositoryHandler, SearchHandler, View
         Log.d(TAG, DebugDB.getAddressLog())
         savedInstanceState?.let {
             try {
-                repoSearchList = savedInstanceState.getSerializable(INSTANCE) as ArrayList<GitRepository>
+                repoSearchList = it.getSerializable(INSTANCE) as ArrayList<GitRepository>
+                filLanguages = it.getSerializable(FIL_LANG) as ArrayList<String>
+                etMinStar.setText(it.getString(MIN_VALUE))
+                etMaxStar.setText(it.getString(MAX_VALUE))
+                null
             } catch (e: Exception) {
                 Log.e(TAG, e.message)
             }
@@ -97,9 +106,6 @@ class MainActivity : AppCompatActivity(), RepositoryHandler, SearchHandler, View
             }
 
             override fun onQueryTextChange(p0: String?): Boolean {
-                if (p0.isNullOrEmpty()) {
-                    clearAdapter()
-                }
                 return false
             }
         })
@@ -184,7 +190,7 @@ class MainActivity : AppCompatActivity(), RepositoryHandler, SearchHandler, View
                 val filteredList = when {
                     filteredListLang.isNullOrEmpty() -> starCountList
                     starCountList.isNullOrEmpty() -> filteredListLang
-                    else -> filteredListLang.intersect(starCountList)
+                    else -> filteredListLang?.intersect(starCountList)
                 }
                 searchAdapter.gitRepositoryList = filteredList as ArrayList<GitRepository>
                 searchAdapter.notifyDataSetChanged()

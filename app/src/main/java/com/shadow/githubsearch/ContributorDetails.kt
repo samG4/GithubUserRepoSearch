@@ -1,7 +1,5 @@
 package com.shadow.githubsearch
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -9,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.shadow.githubsearch.adapter.RepoAdapter
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.contributor_details.*
 
 class ContributorDetails : AppCompatActivity(), SearchHandler, RepositoryHandler {
@@ -17,9 +14,16 @@ class ContributorDetails : AppCompatActivity(), SearchHandler, RepositoryHandler
         gitRepoList.map {
             it.avatarUrl = it.contributor?.avatarUrl
         }
-        searchViewModel.insert(gitRepoList)
+        adapter.repoList = gitRepoList as ArrayList<GitRepository>
+        adapter.notifyDataSetChanged()
 
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable(INSTANCE, adapter.repoList)
+        super.onSaveInstanceState(outState)
+    }
+
 
     override fun handleContributors(contributorList: List<Contributor>) {
 
@@ -41,24 +45,30 @@ class ContributorDetails : AppCompatActivity(), SearchHandler, RepositoryHandler
 
     companion object {
         const val TAG = "DetailScreen"
+        const val INSTANCE = "Item"
     }
 
-    private val contributorItem: Contributor? by lazy {
-        intent.getParcelableExtra(CONTRIBUTOR) as Contributor
-    }
+    private val contributorItem: Contributor by lazy { intent.getParcelableExtra(CONTRIBUTOR) as Contributor }
+
     private val searchWorker: SearchWorker by lazy {
         SearchWorker(this)
     }
     private val adapter: RepoAdapter by lazy {
         RepoAdapter(this, this)
     }
-    private lateinit var searchViewModel: SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.contributor_details)
         Log.d(DetailsActivity.TAG, "$contributorItem")
-        searchViewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
+        var temp = ArrayList<GitRepository>()
+        savedInstanceState?.let {
+            try {
+                temp = savedInstanceState.getSerializable(INSTANCE) as ArrayList<GitRepository>
+            } catch (e: Exception) {
+                Log.e(DetailsActivity.TAG, e.message)
+            }
+        }
         imgBack.setOnClickListener {
             finish()
         }
@@ -66,20 +76,17 @@ class ContributorDetails : AppCompatActivity(), SearchHandler, RepositoryHandler
             tvName.text = it.name
             Picasso.get().load(it.avatarUrl).into(imgAvatar)
             it.name?.let { name ->
-                searchWorker.getRepos(name)
+                if (temp.isNullOrEmpty()) {
+                    searchWorker.getRepos(name)
+                } else {
+                    adapter.repoList = temp
+                    adapter.notifyDataSetChanged()
+                    temp.clear()
+                }
             }
         }
-        searchViewModel.getSearchResults(contributorItem?.name)
-            ?.observe(this, Observer<List<GitRepository>> { repoList ->
-                if(repoList.isNullOrEmpty()){
-                    contributorItem?.name?.let { searchWorker.getRepos(it) }
-                }
-                else{
-                    adapter.repoList = repoList as ArrayList<GitRepository>
-                    adapter.notifyDataSetChanged()
-                }
-            }
-            )
+
+        contributorItem?.name?.let { searchWorker.getRepos(it) }
         val layoutManager: RecyclerView.LayoutManager =
             LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
